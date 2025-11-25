@@ -1,0 +1,6 @@
+streamlit
+gspread
+pandas
+python-dateutil
+pyzbar
+Pillow
