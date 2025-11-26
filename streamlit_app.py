@@ -6,6 +6,22 @@ App Streamlit para Inventario con:
  - registrar movimientos (requiere service account en Streamlit Secrets)
  - fallback: entrada manual de código si pyzbar/cámara no está disponible
 """
+# DEBUG credenciales - BORRAR LUEGO
+import streamlit as st, traceback
+st.write("DEBUG: st.secrets keys:", list(st.secrets.keys()))
+info = st.secrets.get("gcp_service_account")
+if not info:
+    st.error("No existe st.secrets['gcp_service_account']")
+else:
+    st.write("DEBUG client_email:", info.get("client_email"))
+    try:
+        from google.oauth2.service_account import Credentials
+        creds = Credentials.from_service_account_info(info, scopes=["https://www.googleapis.com/auth/spreadsheets"])
+        st.success("Credentials OK")
+    except Exception as e:
+        st.error("Credentials error: " + str(e))
+        st.code(traceback.format_exc())
+st.stop()
 
 import streamlit as st
 from datetime import date, datetime, timezone
