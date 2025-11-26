@@ -1,6 +1,9 @@
 streamlit
-gspread
 pandas
+google-api-python-client
+google-auth
+google-auth-httplib2
+google-auth-oauthlib
 python-dateutil
-pyzbar
 Pillow
+pyzbar
