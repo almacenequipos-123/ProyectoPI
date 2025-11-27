@@ -5,10 +5,10 @@ from googleapiclient.discovery import build
 
 def get_service():
     """Crea el cliente autorizado para Google Sheets usando Streamlit Secrets."""
-    creds = service_account.Credentials.from_service_account_info(
-        st.secrets["gcp_service_account"],
-        scopes=["https://www.googleapis.com/auth/spreadsheets"]
-    )
+   creds = service_account.Credentials.from_service_account_info(
+    st.secrets["service_account"],
+    scopes=["https://www.googleapis.com/auth/spreadsheets"]
+)
     return build("sheets", "v4", credentials=creds)
 
 
