@@ -1,7 +1,7 @@
 import streamlit as st
 from sheets_helper import read_sheet, append_row, get_column_index
 
-SPREADSHEET_ID = st.secrets["spreadsheet_id"]
+SPREADSHEET_ID = st.secrets["movimientos_spreadsheet_id"]
 INVENTARIO_SHEET = "Inventario"
 MOVIMIENTOS_SHEET = "Movimientos"
 
