@@ -30,7 +30,7 @@ st.title("📦 Inventario (con Google Sheets)")
 ID_CATALOGO = "18_5f4JASdhjZiXJ9FZ220klouRwHEAR29bGMJ3y4PLE"        # hoja con pestaña "Herramientas"
 ID_MOVIMIENTOS = "1J0uvOek8KRZDq0sosg2fIF3sX0vHv_1XwaQruzyUOgc"     # hoja con pestaña "Movimientos"
 RANGE_CATALOGO = "Herramientas!A:G"    # incluye la columna Fecha de creación
-RANGE_MOVIMIENTOS = "Movimientos!A:I"
+RANGE_MOVIMIENTOS = "Movimientos!A1:I"
 # Public CSV (opcional) - si tienes la hoja publicada, pega la URL CSV
 PUBLIC_CSV_CATALOGO = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTctDNkN1aHFmtjf4Qfa5zy3U8k7vA-VE9rNRiLMz7hTYGmSaWi4fver5PWonwhQtBVolMwv0daZTMY/pub?gid=0&single=true&output=csv"
 # ---------------------------------------------------------------------
