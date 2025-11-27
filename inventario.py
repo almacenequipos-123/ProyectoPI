@@ -1,8 +1,8 @@
-import streamlit as st
+miimport streamlit as st
 from sheets_helper import read_sheet
 
 SPREADSHEET_ID = st.secrets["inventario_spreadsheet_id"]
-INVENTARIO_SHEET = "Inventario"
+INVENTARIO_SHEET = "InventarioHerramientas"
 
 def cargar_inventario():
     data = read_sheet(SPREADSHEET_ID, INVENTARIO_SHEET)
