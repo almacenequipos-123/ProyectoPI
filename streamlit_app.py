@@ -97,11 +97,11 @@ def main():
             "Cuando se lea correctamente, el código aparecerá en el campo de arriba."
         )
         webrtc_streamer(
-            key="qr-scanner",
-            mode=WebRtcMode.LIVE,
-            video_frame_callback=qr_video_frame_callback,
-            media_stream_constraints={"video": True, "audio": False},
-        )
+    key="qr-scanner",
+    mode=WebRtcMode.SENDRECV,
+    video_frame_callback=qr_video_frame_callback,
+    media_stream_constraints={"video": True, "audio": False},
+)
 
         if st.session_state.get("qr_scanned"):
             st.info(f"Código leído desde QR: **{st.session_state['qr_scanned']}**")
