@@ -5,6 +5,12 @@ import streamlit as st
 from sheets_helper import get_sheets
 from movimientos import registrar_movimiento
 
+# Imports para QR por cámara
+from streamlit_webrtc import webrtc_streamer, WebRtcMode
+from pyzbar.pyzbar import decode
+import cv2
+import av
+
 
 @st.cache_resource
 def load_sheets():
@@ -14,6 +20,42 @@ def load_sheets():
     - Movimientos
     """
     return get_sheets()
+
+
+def qr_video_frame_callback(frame):
+    """
+    Callback que procesa cada frame de la cámara,
+    detecta códigos QR y actualiza st.session_state["codigo"].
+    """
+    img = frame.to_ndarray(format="bgr24")
+
+    # Decodificar posibles QRs en la imagen
+    decoded_objs = decode(img)
+    for obj in decoded_objs:
+        qr_text = obj.data.decode("utf-8").strip()
+
+        # Guardamos el código leído en session_state
+        st.session_state["codigo"] = qr_text
+        st.session_state["qr_scanned"] = qr_text
+
+        # Dibujar un recuadro alrededor del QR (opcional, solo visual)
+        (x, y, w, h) = obj.rect
+        cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        cv2.putText(
+            img,
+            qr_text,
+            (x, y - 10),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            0.5,
+            (0, 255, 0),
+            2,
+            cv2.LINE_AA,
+        )
+
+        # Solo tomamos el primer QR del frame
+        break
+
+    return av.VideoFrame.from_ndarray(img, format="bgr24")
 
 
 def main():
@@ -30,10 +72,36 @@ def main():
         )
         return
 
+    # Inicializar estado para QR
+    if "codigo" not in st.session_state:
+        st.session_state["codigo"] = ""
+    if "qr_scanned" not in st.session_state:
+        st.session_state["qr_scanned"] = ""
+
     st.markdown("### Registrar movimiento")
 
-    # Campo para el código de la herramienta
-    codigo = st.text_input("Código de la herramienta", key="codigo")
+    # Campo de código (se puede escribir a mano o se rellena desde QR)
+    codigo = st.text_input(
+        "Código de la herramienta",
+        key="codigo",
+        placeholder="Escribe el código o escanéalo con la cámara",
+    )
+
+    # --- Sección de cámara para leer QR ---
+    with st.expander("Escanear código QR con la cámara"):
+        st.markdown(
+            "Apunta la cámara al QR de la herramienta. "
+            "Cuando se lea correctamente, el código aparecerá en el campo de arriba."
+        )
+        webrtc_streamer(
+            key="qr-scanner",
+            mode=WebRtcMode.LIVE,
+            video_frame_callback=qr_video_frame_callback,
+            media_stream_constraints={"video": True, "audio": False},
+        )
+
+        if st.session_state.get("qr_scanned"):
+            st.info(f"Código leído desde QR: **{st.session_state['qr_scanned']}**")
 
     col1, col2 = st.columns(2)
     with col1:
@@ -62,6 +130,8 @@ def main():
                     f"✅ Movimiento registrado a las {ts} (hora Colombia). "
                     f"Nuevo balance para {codigo.strip()}: {nuevo_balance}."
                 )
+                # Limpiamos el último QR leído para evitar confusiones
+                st.session_state["qr_scanned"] = ""
             except Exception as e:
                 st.error(f"❌ Error al registrar el movimiento: {e}")
 
