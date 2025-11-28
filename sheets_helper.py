@@ -17,7 +17,7 @@ def get_sheets():
 
     Requiere en st.secrets:
       [gsheets]
-      spreadsheet_id = "..."
+      spreadsheet_id = "18_5f4JASdhjZiXJ9FZ220klouRwHEAR29bGMJ3y4PLE"
 
       [gcp_service_account]
       ...datos del JSON...
