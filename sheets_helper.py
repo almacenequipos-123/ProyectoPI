@@ -38,7 +38,7 @@ def get_sheets():
     sh = client.open_by_key(spreadsheet_id)
 
     # Hojas: Inventario y Movimientos
-    sh_inventario = sh.worksheet("Inventario")
-    sh_movimientos = sh.worksheet("Movimientos")
+    sh_inventario = sh.worksheet("inventario")
+    sh_movimientos = sh.worksheet("movimiento")
 
     return sh_inventario, sh_movimientos
