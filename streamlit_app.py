@@ -7,7 +7,6 @@ from movimientos import registrar_movimiento
 
 # Imports para QR por cámara
 from streamlit_webrtc import webrtc_streamer, WebRtcMode
-from pyzbar.pyzbar import decode
 import cv2
 import av
 
@@ -25,35 +24,39 @@ def load_sheets():
 def qr_video_frame_callback(frame):
     """
     Callback que procesa cada frame de la cámara,
-    detecta códigos QR y actualiza st.session_state["codigo"].
+    detecta códigos QR con OpenCV y actualiza st.session_state["codigo"].
     """
     img = frame.to_ndarray(format="bgr24")
 
-    # Decodificar posibles QRs en la imagen
-    decoded_objs = decode(img)
-    for obj in decoded_objs:
-        qr_text = obj.data.decode("utf-8").strip()
+    # Detector de QR de OpenCV
+    detector = cv2.QRCodeDetector()
+
+    data, points, _ = detector.detectAndDecode(img)
+
+    if points is not None and data:
+        qr_text = data.strip()
 
         # Guardamos el código leído en session_state
         st.session_state["codigo"] = qr_text
         st.session_state["qr_scanned"] = qr_text
 
-        # Dibujar un recuadro alrededor del QR (opcional, solo visual)
-        (x, y, w, h) = obj.rect
-        cv2.rectangle(img, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        # Dibujar bordes alrededor del QR
+        pts = points[0].astype(int)
+        for i in range(4):
+            pt1 = tuple(pts[i])
+            pt2 = tuple(pts[(i + 1) % 4])
+            cv2.line(img, pt1, pt2, (0, 255, 0), 2)
+
         cv2.putText(
             img,
             qr_text,
-            (x, y - 10),
+            (pts[0][0], pts[0][1] - 10),
             cv2.FONT_HERSHEY_SIMPLEX,
-            0.5,
+            0.7,
             (0, 255, 0),
             2,
             cv2.LINE_AA,
         )
-
-        # Solo tomamos el primer QR del frame
-        break
 
     return av.VideoFrame.from_ndarray(img, format="bgr24")
 
@@ -80,7 +83,7 @@ def main():
 
     st.markdown("### Registrar movimiento")
 
-    # Campo de código (se puede escribir a mano o se rellena desde QR)
+    # Campo de código (manual o desde QR)
     codigo = st.text_input(
         "Código de la herramienta",
         key="codigo",
@@ -167,13 +170,18 @@ def main():
                     recuento_fisico = sh_inventario.cell(fila, 6).value
                     fecha_recuento = sh_inventario.cell(fila, 7).value
 
+                    if recuento_fisico is None:
+                        recuento_fisico = ""
+                    if fecha_recuento is None:
+                        fecha_recuento = ""
+
                     st.info(
                         f"**Código:** {codigo_val}\n\n"
                         f"**Descripción:** {descripcion}\n\n"
                         f"**Estado:** {estado}\n\n"
                         f"**Estante:** {estante}\n\n"
                         f"**Balance actual:** {balance_actual}\n\n"
-                        f"**Recuento físico:** {recuentro_fisico if (recuentro_fisico := recuento_fisico or '') else '—'}\n\n"
+                        f"**Recuento físico:** {recuento_fisico or '—'}\n\n"
                         f"**Fecha de recuento:** {fecha_recuento or '—'}"
                     )
 
